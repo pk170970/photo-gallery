@@ -1,34 +1,10 @@
 <div class="app-container">
-  <h1 class="main-title">📸 My Photo Gallery</h1>
+  <h1 class="main-title">📸 {{title()}}</h1>
 
-  <div class="search-container">
-    <input
-      #searchinput
-      type="text"
-      placeholder="Search photos by author name..."
-      [value]="photoService.searchQuery()"
-      (input)="onSearch($event)"
-      (focus)="onFocus()"
-      (blur)="onBlur()"
-      class="search-input"
-    />
-    @if (photoService.searchQuery()) {
-    <button class="clear-search-button" (click)="clearSearch()" title="Clear search">✕</button>
-    }
-
-    <!-- Search results info -->
-    @if (photoService.searchQuery()) {
-    <div class="search-info">
-      <span class="search-results">
-        Found {{ photoService.totalPhotos() }} photo{{
-          photoService.totalPhotos() === 1 ? '' : 's'
-        }}
-        for "{{ photoService.searchQuery() }}"
-      </span>
-    </div>
-    }
-  </div>
-
+  <!-- Search component -->
+  <search-photo #searchComponent
+    (focusChange)="onSearchFocusChange($event)"
+  />
   <!-- PHOTO COUNT INFO -->
   @if (photoService.totalPhotos() > 0) {
   <div class="gallery-info">
@@ -53,8 +29,8 @@
   <!-- Show photos when loaded -->
   @if (photoService.totalPhotos() > 0) {
     <div class="photos-grid">
-      @for (photo of photoService.photos(); track photo.id) {
-      <photo-card [photo]="photo"></photo-card>
+      @for (photo of photoService.photos(); track photo.id; let i = $index) {
+      <photo-card (click)="openPhotoDialog(i)" [photo]="photo"></photo-card>
       }
     </div>
 
@@ -112,4 +88,11 @@
     <polyline points="18,15 12,9 6,15"></polyline>
   </svg>
 </button>
+}
+
+@if(showPhotoModalDialog){
+  <photo-dialog 
+    [initialIndex] = "currentPhotoIndex()"
+    (closeModalEvent) = "closeModalDialog($event)"
+  />
 }

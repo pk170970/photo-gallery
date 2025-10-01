@@ -15,7 +15,7 @@ export class PhotoService {
   hasMorePhotos = signal(true);
   
   searchQuery = signal<string>('');
-  photos = computed(()=>{
+  public photos = computed(()=>{
     const query = this.searchQuery().toLowerCase().trim();
     const all = this.allPhotos();
     if(!query) return all;
@@ -109,5 +109,19 @@ export class PhotoService {
     this.isLoadingMore.set(false);
     return throwError(() => err);
   }
+
+  // public debounceService(func : Function, delay: number){
+  //   console.log('debounce service called');
+  //   let timer : any = null;
+  //   return (input:string)=>{
+  //     console.log('returning function with timer', timer);
+  //     if(timer){
+  //       clearTimeout(timer);
+  //     }
+  //     timer = setTimeout(() => {
+  //        func(input); 
+  //     }, delay);
+  //   }
+  // }
 
 }

@@ -1,0 +1,27 @@
+  <div class="search-container">
+    <input
+      #searchinput
+      type="text"
+      placeholder="Search photos by author name..."
+      [value]="photoService.searchQuery()"
+      (input)="onSearch($event)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      class="search-input"
+    />
+    @if (photoService.searchQuery()) {
+    <button class="clear-search-button" (click)="clearSearch()" title="Clear search">✕</button>
+    }
+
+    <!-- Search results info -->
+    @if (photoService.searchQuery()) {
+    <div class="search-info">
+      <span class="search-results">
+        Found {{ photoService.totalPhotos() }} photo{{
+          photoService.totalPhotos() === 1 ? '' : 's'
+        }}
+        for "{{ photoService.searchQuery() }}"
+      </span>
+    </div>
+    }
+  </div>

@@ -1,0 +1,54 @@
+<!-- Photo Modal Component Template -->
+<div class="modal-backdrop">
+  <!-- Modal Content Container -->
+  <div class="modal-content">
+    
+    <!-- Close Button -->
+    <button class="close-button" (click)="closeModal()" aria-label="Close modal">✕</button>
+    
+    @if(currentIndex() > 0){
+    <!-- Previous Arrow -->
+      <button (click)="previousPhotoInfo()" class="nav-arrow nav-arrow-left" aria-label="Previous photo">‹</button>
+    }
+    
+    <!-- Photo Container -->
+    <div class="photo-container">
+
+      @if(photoInfo(); as photo){
+        <!-- Main Photo -->
+        <img 
+          [src]="photo.image"
+          loading="eager" 
+          alt="Sample Photo by John Doe"
+          class="modal-image"
+        >
+      }
+      
+      <!-- Loading State (show/hide based on image loading) -->
+      @if(!photoInfo()){
+        <div class="image-loading">
+            <div class="loading-spinner"></div>
+            <p>Loading image...</p>
+        </div>
+      }
+    </div>
+    
+    @if(currentIndex() < allPhotos().length - 1){
+      <!-- Next Arrow -->
+      <button (click)="nextPhotoInfo()" class="nav-arrow nav-arrow-right" aria-label="Next photo">›</button>
+    }
+    
+    @if(photoInfo(); as photo){
+    <!-- Photo Info Section -->
+    <div class="photo-info">
+      <h3 class="photo-title">Photo by {{photo.author}}</h3>
+      <div class="photo-stats">
+        <span class="stat">❤️ {{photo.likes}} likes</span>
+        <span class="stat">👀 {{photo.views}} views</span>
+      </div>
+      <div class="photo-counter">{{currentIndex() + 1}} of {{photoService.totalPhotos()}}</div>
+    </div>
+    }
+    
+  </div>
+</div>
