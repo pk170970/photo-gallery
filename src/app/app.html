@@ -36,7 +36,7 @@
   }
 
   <!-- Show photos when loaded -->
-  <!-- @if (photoService.totalPhotos() > 0) { -->
+  @if (photoService.totalPhotos() > 0) {
   <div class="photos-grid">
     @for (photo of photoService.photos(); track photo.id; let i = $index) {
     <photo-card (click)="openPhotoDialog(i, photo.id)" [photo]="photo"></photo-card>
@@ -61,7 +61,7 @@
     }
   </div>
   }
-  <!-- } -->
+  }
 
   <!-- Show error if something goes wrong -->
   @if (photoService.hasError()) {
