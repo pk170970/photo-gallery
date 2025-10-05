@@ -1,6 +1,7 @@
-import { Component, input, output, OnInit, Inject, computed, signal, HostListener } from '@angular/core';
+import { Component, input, output, OnInit, Inject, computed, signal, HostListener, inject, effect } from '@angular/core';
 import { Photo } from '../../models/photo.interface';
 import { PhotoService } from '../../services/photo.service';
+import { LikeService } from '../../services/like.service';
 
 @Component({
   selector: 'photo-dialog',
@@ -8,24 +9,31 @@ import { PhotoService } from '../../services/photo.service';
   templateUrl: './photo-dialog.html',
   styleUrl: './photo-dialog.scss',
 })
-export class PhotoDialogComponent implements OnInit {
+export class PhotoDialogComponent {
+  photoService = inject(PhotoService);
+  likeService = inject(LikeService);
+
   initialIndex = input.required<number>();
   closeModalEvent = output<boolean>();
-  allPhotos = signal<Photo[]>([]);
   currentIndex = signal<number>(0);
   photoInfo = computed(()=>{
-    return this.allPhotos().length > 0 ? this.allPhotos()[this.currentIndex()] : null;
+    return this.photoService.photos().length > 0 ? this.photoService.photos()[this.currentIndex()] : null;
   });
 
-  constructor(public photoService: PhotoService) {}
+  constructor(){
+    effect(()=>{
+      this.currentIndex.set(this.initialIndex());
+    })
+  }
+
 
   closeModal(): void {
     this.closeModalEvent.emit(true);
   }
 
-  ngOnInit(): void {
-    this.allPhotos.set(this.photoService.photos());
-    this.currentIndex.update(this.initialIndex);
+  toggleLike(id:number):void{
+    this.likeService.toggleLike(id);
+    this.closeModal();
   }
 
   previousPhotoInfo(): void {
@@ -37,7 +45,7 @@ export class PhotoDialogComponent implements OnInit {
   }
 
   nextPhotoInfo(): void {
-    if(this.currentIndex() === this.allPhotos().length-1){
+    if(this.currentIndex() === this.photoService.photos().length-1){
       console.log('We are done with all the photos');
       return;
     }

@@ -1,10 +1,11 @@
-import { Component, computed, HostListener, OnInit, signal, ElementRef, ViewChild } from '@angular/core';
+import { Component, computed, HostListener, OnInit, signal, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PhotoService } from './services/photo.service';
 import { PhotoCardComponent } from './components/photo-card/photo-card';
 import { SearchComponent } from './components/search/search';
 import { PhotoDialogComponent } from './modal-dialogs/photo-dialog/photo-dialog';
 import { Photo } from './models/photo.interface';
+import { LikeService } from './services/like.service';
 
 @Component({
   selector: 'app-root',
@@ -23,9 +24,12 @@ export class AppComponent implements OnInit {
   showScrollToTop = computed(() => this.scrollY() > 300);
   lastScrollTime: number = 0;
 
+  isFilterActive = signal<boolean>(false);
+
   private readonly photosPerPage = 9;
 
-  constructor(public photoService: PhotoService) {}
+  photoService = inject(PhotoService); //keeping it encapsulated and inject with modern angular way, no constructor
+  likeService = inject(LikeService);
 
   ngOnInit(): void {
     this.loadPhotos();
@@ -70,12 +74,23 @@ export class AppComponent implements OnInit {
   }
 
   loadMorePhotos(): void {
+    this.isFilterActive.set(false);
     this.photoService.loadMorePhotos().subscribe();
   }
 
-  openPhotoDialog(index: number): void {
+  openPhotoDialog(index: number, id:number): void {
     this.showPhotoModalDialog = true;
     this.currentPhotoIndex.set(index);
+    this.photoService.updateViews(id);
+  }
+
+  showLikedPhotos():void{
+    if(this.isFilterActive()){
+      this.photoService.loadInitialPhotos().subscribe();
+    }else{
+      this.photoService.filterLikePhotos();
+    }
+    this.isFilterActive.set(!this.isFilterActive());
   }
 
   closeModalDialog(closeModal: boolean) {

@@ -1,10 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, signal, computed } from '@angular/core';
 import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { ApiPhoto, Photo } from '../models/photo.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PhotoService {
   private allPhotos = signal<Photo[]>([]);
@@ -13,27 +13,40 @@ export class PhotoService {
   hasError = signal(false);
   currentPage = signal(1);
   hasMorePhotos = signal(true);
-  
+
   searchQuery = signal<string>('');
-  public photos = computed(()=>{
+  public photos = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     const all = this.allPhotos();
-    if(!query) return all;
+    if (!query) return all;
 
-    return all.filter(photo => photo.author.toLowerCase().includes(query));
+    return all.filter((photo) => photo.author.toLowerCase().includes(query));
   });
 
   totalPhotos = computed(() => this.photos().length);
-  totalLoadedPhotos = computed(()=> this.allPhotos().length);
+  totalLoadedPhotos = computed(() => this.allPhotos().length);
 
   private readonly API_URL = 'https://picsum.photos/v2/list';
-  private readonly PAGE_SIZE = 9;
+  private readonly PAGE_SIZE = 18;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  setSearchQuery(query:string){
+  setSearchQuery(query: string) {
     console.log('🔍 Search query set to:', query);
     this.searchQuery.set(query);
+  }
+
+  applySavedLikes(photos: Photo[]): Photo[] {
+    const likesData = localStorage.getItem('photoLikes');
+    if (likesData) {
+      const likesId = JSON.parse(likesData);
+      const likesSet = new Set<number>(likesId);
+      return photos.map((photo) => ({
+        ...photo,
+        isLiked: likesSet.has(photo.id),
+      }));
+    }
+    return photos;
   }
 
   loadInitialPhotos(): Observable<Photo[]> {
@@ -45,14 +58,16 @@ export class PhotoService {
     this.allPhotos.set([]);
     this.isLoading.set(true);
     this.hasError.set(false);
-    this.currentPage.set(1);
-    return this.fetchPhotosFromAPI(1).pipe(
-      tap(photos => {
+    this.currentPage.set(2); // just fetching from page 2 for more variation of photos
+    return this.fetchPhotosFromAPI(this.currentPage()).pipe(
+      map((photos) => this.applySavedLikes(photos)),
+      tap((photos) => {
+        console.log('initial photos', photos);
         this.allPhotos.set(photos);
         this.hasMorePhotos.set(photos.length >= this.PAGE_SIZE);
         this.isLoading.set(false);
       }),
-      catchError(error => this.handleError(error))
+      catchError((error) => this.handleError(error))
     );
   }
 
@@ -62,19 +77,20 @@ export class PhotoService {
   }
 
   loadMorePhotos(): Observable<Photo[]> {
-    if (!this.hasMorePhotos() || this.isLoadingMore()) return throwError(() => new Error('Cannot load more or photos are still loading'));
+    if (!this.hasMorePhotos() || this.isLoadingMore())
+      return throwError(() => new Error('Cannot load more or photos are still loading'));
 
     this.isLoadingMore.set(true);
     const nextPage = this.currentPage() + 1;
     return this.fetchPhotosFromAPI(nextPage).pipe(
-      tap(newPhotos => {
-        this.allPhotos.update(current => [...current, ...newPhotos]);
+      tap((newPhotos) => {
+        this.allPhotos.update((current) => [...current, ...newPhotos]);
         this.currentPage.set(nextPage);
         this.hasMorePhotos.set(newPhotos.length >= this.PAGE_SIZE);
         this.isLoadingMore.set(false);
         console.log('✅ More photos loaded. Total:', this.photos().length);
       }),
-      catchError(err => this.handleError(err))
+      catchError((err) => this.handleError(err))
     );
   }
 
@@ -87,7 +103,11 @@ export class PhotoService {
     const url = `${this.API_URL}?page=${page}&limit=${this.PAGE_SIZE}`;
     console.log('api call:', url);
     return this.http.get<any[]>(url).pipe(
-      map(apiPhotos => this.transformPhotos(apiPhotos))
+      map((apiPhotos) => this.transformPhotos(apiPhotos)),
+      catchError((err:HttpErrorResponse) => {
+        console.error('API error', err);
+        return throwError(()=> new Error(err.message));
+      })
     );
   }
 
@@ -98,7 +118,8 @@ export class PhotoService {
       author: apiPhoto.author,
       likes: Math.floor(Math.random() * 500) + 50,
       views: Math.floor(Math.random() * 2000) + 100,
-      image: `https://picsum.photos/id/${apiPhoto.id}/400/300`
+      image: `https://picsum.photos/id/${apiPhoto.id}/400/300`,
+      isLiked: false,
     }));
   }
 
@@ -110,6 +131,38 @@ export class PhotoService {
     return throwError(() => err);
   }
 
+  public updateLikesData(photoId: number, likeStatus: boolean) {
+    this.allPhotos.update((photos) => {
+      return photos.map((photo) => {
+        if (photo.id === photoId) {
+          return {
+            ...photo,
+            likes: likeStatus ? photo.likes + 1 : photo.likes - 1,
+            isLiked: likeStatus,
+          };
+        }
+        return photo;
+      });
+    });
+  }
+
+  public updateViews(id: number) {
+    this.allPhotos.update((photos) => {
+      return photos.map((photo) => {
+        if (photo.id === id) {
+          return { ...photo, views: photo.views + 1 };
+        }
+        return photo;
+      });
+    });
+  }
+
+  public filterLikePhotos():void{
+    this.allPhotos.update(photos =>{
+      return photos.filter(photo => photo.isLiked);
+    })
+  }
+
   // public debounceService(func : Function, delay: number){
   //   console.log('debounce service called');
   //   let timer : any = null;
@@ -119,9 +172,8 @@ export class PhotoService {
   //       clearTimeout(timer);
   //     }
   //     timer = setTimeout(() => {
-  //        func(input); 
+  //        func(input);
   //     }, delay);
   //   }
   // }
-
 }

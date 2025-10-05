@@ -5,6 +5,7 @@ export interface Photo {
   likes: number;
   views: number;
   image: string;
+  isLiked:boolean;
 }
 
 export interface ApiPhoto {

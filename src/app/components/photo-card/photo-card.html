@@ -1,7 +1,11 @@
 <article class="photo-card">
     <div class="image-container">
         <img [src]="photo().image" class="photo-image" loading="lazy">
-    </div>
+            <!-- 🔥HEART BUTTON -->
+        <button (click)="toggleLike($event)" [class.liked]="isLiked()" class="heart-button" type="button">
+            <span class="heart-icon">{{isLiked() ? "❤️" :  "🤍"}}</span>
+        </button>
+  </div>
 
     <div class="card-content">
         <h3 class="photo-title">Image  {{photo().id + 1}}</h3>

@@ -66,7 +66,7 @@ export class SearchComponent implements OnInit, OnDestroy{
     this.onFocusMode = true;
     this.focusChange.emit(this.onFocusMode);
     if(this.searchInputElement.nativeElement){
-      const height = window.scrollY + window.innerHeight; // fixed value
+      const height = window.scrollY + window.innerHeight + 50; // fixed value
       this.searchInputElement.nativeElement.style.outline = `solid black ${height}px`;
     }
   }

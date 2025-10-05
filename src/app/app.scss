@@ -1,35 +1,107 @@
 .app-container {
-  padding: 50px;
   font-family: Arial, sans-serif;
   background-color: #f5f5f5;
   min-height: 100vh;
 }
 
+/* src/app/app.scss */
+.app-header {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  padding: 30px 0px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
 .main-title {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
   text-align: center;
-  color: #667eea;
-  font-size: 3rem;
-  margin-bottom: 20px;
-  z-index: 2;
-  position: relative;
+  z-index:2;
+}
+
+/* 🔥 HEADER CONTROLS */
+.header-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.favorites-toggle {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.favorites-toggle:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.favorites-toggle.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border-color: white;
+}
+
+.toggle-icon {
+  font-size: 16px;
+}
+
+.favorites-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 20px;
+  }
+  
+  .main-title {
+    font-size: 2rem;
+  }
+  
+  .favorites-toggle {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
 }
 
 .gallery-info {
   text-align: center;
-  margin-bottom: 30px;
+  margin-block: 30px;
   padding: 15px;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(102, 126, 234);
   border-radius: 8px;
   max-width: 300px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-inline:auto;
   z-index: 2;
   position: relative;
 }
 
 .gallery-info p {
   margin: 0;
-  color: #667eea;
+  color: white;
   font-weight: 500;
 }
 
@@ -155,10 +227,6 @@
 
 // 🔍 MOBILE RESPONSIVE
 @media (max-width: 768px) {
-  .app-container{
-    padding: 30px;
-  }
-
   .main-title {
     font-size: 2rem;
   }

@@ -1,6 +1,5 @@
 // 🔍 SEARCH CONTAINER
 .search-container {
-  max-width: 500px;
   margin: 15px auto;
   position: relative;
 }
@@ -71,6 +70,7 @@
   border-radius: 15px;
   font-size: 0.9rem;
   display: inline-block;
+  color:black;
 }
 
 // 🔍 NO SEARCH RESULTS STYLES

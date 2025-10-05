@@ -1,10 +1,19 @@
 <div class="app-container">
-  <h1 class="main-title">📸 {{title()}}</h1>
+  <header class="app-header">
+    <h1 class="main-title">📸 {{title()}}</h1>
 
-  <!-- Search component -->
-  <search-photo #searchComponent
-    (focusChange)="onSearchFocusChange($event)"
-  />
+    <div class="header-controls">
+      <!-- Search component -->
+      <search-photo style="width: 40%;" #searchComponent (focusChange)="onSearchFocusChange($event)" />
+
+      <button [class.active]="isFilterActive()" (click)="showLikedPhotos()" class="favorites-toggle" type="button">
+        <span *ngIf="!isFilterActive()" class="toggle-icon">❤️</span>
+        <span class="toggle-text">{{isFilterActive() ? "Show All" : "Show Favorites"}}</span>
+        <span *ngIf="!isFilterActive()" class="favorites-count">{{isFilterActive() ? "" : likeService.likedCount()}}</span>
+      </button>
+    </div>
+  </header>
+
   <!-- PHOTO COUNT INFO -->
   @if (photoService.totalPhotos() > 0) {
   <div class="gallery-info">
@@ -27,36 +36,32 @@
   }
 
   <!-- Show photos when loaded -->
-  @if (photoService.totalPhotos() > 0) {
-    <div class="photos-grid">
-      @for (photo of photoService.photos(); track photo.id; let i = $index) {
-      <photo-card (click)="openPhotoDialog(i)" [photo]="photo"></photo-card>
-      }
-    </div>
+  <!-- @if (photoService.totalPhotos() > 0) { -->
+  <div class="photos-grid">
+    @for (photo of photoService.photos(); track photo.id; let i = $index) {
+    <photo-card (click)="openPhotoDialog(i, photo.id)" [photo]="photo"></photo-card>
+    }
+  </div>
 
-    @if(!photoService.searchQuery()){
-    <!-- Load More Section -->
-    <div class="load-more-section">
-      @if (photoService.isLoadingMore()) {
-      <div class="loading-more">
-        <p>🔄 Loading more photos...</p>
-      </div>
-      } @else if (photoService.hasMorePhotos()) {
-      <button
-        (click)="loadMorePhotos()"
-        class="load-more-button"
-        [disabled]="photoService.isLoading()"
-      >
-        📷 Load More Photos ({{ photoService.totalPhotos() }} so far)
-      </button>
-      } @else {
-      <div class="no-more-photos">
-        <p>🎉 That's all the photos for now! ({{ photoService.totalPhotos() }} total)</p>
-      </div>
-      }
+  @if(!photoService.searchQuery()){
+  <!-- Load More Section -->
+  <div class="load-more-section">
+    @if (photoService.isLoadingMore()) {
+    <div class="loading-more">
+      <p>🔄 Loading more photos...</p>
+    </div>
+    } @else if (photoService.hasMorePhotos()) {
+    <button (click)="loadMorePhotos()" class="load-more-button" [disabled]="photoService.isLoading()">
+      📷 Load More Photos ({{ photoService.totalPhotos() }} so far)
+    </button>
+    } @else {
+    <div class="no-more-photos">
+      <p>🎉 That's all the photos for now! ({{ photoService.totalPhotos() }} total)</p>
     </div>
     }
+  </div>
   }
+  <!-- } -->
 
   <!-- Show error if something goes wrong -->
   @if (photoService.hasError()) {
@@ -69,30 +74,14 @@
 
 <!-- 🔥 SCROLL TO TOP BUTTON -->
 @if (showScrollToTop()) {
-<button
-  (click)="scrollToTop()"
-  class="scroll-to-top-button"
-  aria-label="Scroll to top"
-  title="Back to top"
->
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
+<button (click)="scrollToTop()" class="scroll-to-top-button" aria-label="Scroll to top" title="Back to top">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
     <polyline points="18,15 12,9 6,15"></polyline>
   </svg>
 </button>
 }
 
 @if(showPhotoModalDialog){
-  <photo-dialog 
-    [initialIndex] = "currentPhotoIndex()"
-    (closeModalEvent) = "closeModalDialog($event)"
-  />
+<photo-dialog [initialIndex]="currentPhotoIndex()" (closeModalEvent)="closeModalDialog($event)" />
 }

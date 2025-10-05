@@ -223,6 +223,53 @@
   color:black;
 }
 
+.photo-actions {
+  margin-block: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.favorite-action-btn {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  color: #495057;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  width: 100%;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+
+.favorite-action-btn:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+  transform: translateY(-1px);
+}
+
+/* 🔥 LIKED STATE */
+.favorite-action-btn.liked {
+  background: #fff5f5;
+  border-color: #fed7d7;
+  color: #c53030;
+}
+
+.favorite-action-btn.liked:hover {
+  background: #fed7d7;
+  border-color: #feb2b2;
+}
+
+.action-icon {
+  font-size: 18px;
+  padding-bottom:4px;
+}
+
 .photo-counter {
   color: #6c757d;
   font-size: 0.9rem;
